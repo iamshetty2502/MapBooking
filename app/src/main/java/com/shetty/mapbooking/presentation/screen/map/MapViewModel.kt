@@ -6,6 +6,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.shetty.mapbooking.data.location.LocationManager
 import com.shetty.mapbooking.domain.usecase.GetLocationDetailsUseCase
 import com.shetty.mapbooking.presentation.navigation.NavigationEvent
+import com.shetty.mapbooking.presentation.state.BookingStateHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val getLocationDetailsUseCase: GetLocationDetailsUseCase,
-    private val locationManager: LocationManager
+    private val locationManager: LocationManager,
+    private val bookingStateHolder: BookingStateHolder
 ) : ViewModel() {
 
     // =========================================================
@@ -114,7 +116,9 @@ class MapViewModel @Inject constructor(
     // USER ACTION
     // =========================================================
 
-    fun onAction(action: MapAction) {
+    fun onAction(
+        action: MapAction
+    ) {
 
         when (action) {
 
@@ -171,8 +175,9 @@ class MapViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoadingLocation = false,
-                            error = throwable.message
-                                ?: "Unable to set A location"
+                            error =
+                                throwable.message
+                                    ?: "Unable to set A location"
                         )
                     }
                 }
@@ -218,8 +223,9 @@ class MapViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoadingLocation = false,
-                            error = throwable.message
-                                ?: "Unable to set B location"
+                            error =
+                                throwable.message
+                                    ?: "Unable to set B location"
                         )
                     }
                 }
@@ -228,10 +234,43 @@ class MapViewModel @Inject constructor(
 
 
     // =========================================================
-    // NAVIGATION
+    // BOOK
     // =========================================================
 
+    /*
+     * Screen 1 -> Screen 3
+     *
+     * We require both A and B before allowing the booking
+     * flow to continue.
+     *
+     * The actual booking request is NOT made here.
+     *
+     * We only transfer the selected A/B locations to the
+     * BookingStateHolder.
+     *
+     * BookingViewModel will perform the actual createBook()
+     * operation.
+     */
+
     private fun onBookClicked() {
+
+        val state =
+            _uiState.value
+
+        val aLocation =
+            state.aLocation
+                ?: return
+
+        val bLocation =
+            state.bLocation
+                ?: return
+
+        // Store A and B for Screen 3.
+        bookingStateHolder.aLocation =
+            aLocation
+
+        bookingStateHolder.bLocation =
+            bLocation
 
         viewModelScope.launch {
 
@@ -241,6 +280,22 @@ class MapViewModel @Inject constructor(
         }
     }
 
+
+    // =========================================================
+    // SELECTED LOCATION DETAILS
+    // =========================================================
+
+    /*
+     * Called after the map stops moving.
+     *
+     * Coordinates
+     *      ↓
+     * GetLocationDetailsUseCase
+     *      ↓
+     * AQI + Reverse Geocoding
+     *      ↓
+     * selectedLocationDetails
+     */
 
     fun loadSelectedLocationDetails() {
 
@@ -277,29 +332,24 @@ class MapViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoadingLocation = false,
-                            error = throwable.message
-                                ?: "Unable to load location details"
+                            error =
+                                throwable.message
+                                    ?: "Unable to load location details"
                         )
                     }
                 }
         }
     }
 
-    fun onHistoryClicked() {
-
-        viewModelScope.launch {
-
-            _navigationEvent.emit(
-                NavigationEvent.History
-            )
-        }
-    }
-
-
 
     // =========================================================
-    // Location A Label Click
+    // LOCATION A LABEL CLICK
     // =========================================================
+
+    /*
+     * Tapping the existing A label opens Screen 2.
+     */
+
     fun onLocationAClicked() {
 
         val location =
@@ -318,8 +368,13 @@ class MapViewModel @Inject constructor(
 
 
     // =========================================================
-    // Location A Label Click
+    // LOCATION B LABEL CLICK
     // =========================================================
+
+    /*
+     * Tapping the existing B label opens Screen 2.
+     */
+
     fun onLocationBClicked() {
 
         val location =
@@ -337,12 +392,33 @@ class MapViewModel @Inject constructor(
     }
 
 
+    // =========================================================
+    // UPDATE NICKNAME
+    // =========================================================
+
+    /*
+     * Screen 2 -> Screen 1
+     *
+     * We preserve the original reverse-geocoded name.
+     * The nickname is stored separately.
+     *
+     * Example:
+     *
+     * name     = "Seocho District, Yangjae 2(i)-dong"
+     * nickname = "Home"
+     *
+     * MapScreen displays:
+     *
+     * location.displayName
+     */
+
     fun updateNickname(
         type: String,
         nickname: String
     ) {
 
-        val trimmedNickname = nickname.trim()
+        val trimmedNickname =
+            nickname.trim()
 
         _uiState.update { state ->
 
@@ -358,7 +434,9 @@ class MapViewModel @Inject constructor(
                         aLocation = location.copy(
                             nickname =
                                 trimmedNickname
-                                    .takeIf { it.isNotBlank() }
+                                    .takeIf {
+                                        it.isNotBlank()
+                                    }
                         )
                     )
                 }
@@ -373,7 +451,9 @@ class MapViewModel @Inject constructor(
                         bLocation = location.copy(
                             nickname =
                                 trimmedNickname
-                                    .takeIf { it.isNotBlank() }
+                                    .takeIf {
+                                        it.isNotBlank()
+                                    }
                         )
                     )
                 }
@@ -382,6 +462,33 @@ class MapViewModel @Inject constructor(
             }
         }
     }
+
+
+    // =========================================================
+    // HISTORY
+    // =========================================================
+    fun onHistoryClicked() {
+
+        viewModelScope.launch {
+
+            _navigationEvent.emit(
+                NavigationEvent.History
+            )
+        }
+    }
+
+    // =========================================================
+    // RESET MAP
+    // =========================================================
+    fun resetMap() {
+
+        // Clear A/B booking data
+        bookingStateHolder.clear()
+
+        // Reset the Map screen state
+        _uiState.value = MapUiState()
+    }
+
 
     // =========================================================
     // ERROR

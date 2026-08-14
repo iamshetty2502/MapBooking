@@ -1,4 +1,5 @@
 package com.shetty.mapbooking.data.mock
+
 import com.shetty.mapbooking.data.model.BookDetails
 import com.shetty.mapbooking.data.model.BookRequest
 import com.shetty.mapbooking.data.remote.BookingDataSource

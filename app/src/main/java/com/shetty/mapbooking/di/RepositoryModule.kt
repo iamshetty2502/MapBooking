@@ -1,9 +1,9 @@
 package com.shetty.mapbooking.di
 
 import com.shetty.mapbooking.data.mock.MockBookingDataSource
-import com.shetty.mapbooking.data.remote.BookingDataSource
 import com.shetty.mapbooking.data.repository.BookingRepositoryImpl
 import com.shetty.mapbooking.data.repository.LocationRepositoryImpl
+import com.shetty.mapbooking.data.remote.BookingDataSource
 import com.shetty.mapbooking.domain.repository.BookingRepository
 import com.shetty.mapbooking.domain.repository.LocationRepository
 import dagger.Binds
@@ -16,11 +16,20 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
 
+    // =========================================================
+    // LOCATION REPOSITORY
+    // =========================================================
+
     @Binds
     @Singleton
-    abstract fun bindBookingDataSource(
-        implementation: MockBookingDataSource
-    ): BookingDataSource
+    abstract fun bindLocationRepository(
+        implementation: LocationRepositoryImpl
+    ): LocationRepository
+
+
+    // =========================================================
+    // BOOKING REPOSITORY
+    // =========================================================
 
     @Binds
     @Singleton
@@ -28,9 +37,14 @@ abstract class RepositoryModule {
         implementation: BookingRepositoryImpl
     ): BookingRepository
 
+
+    // =========================================================
+    // BOOKING DATA SOURCE
+    // =========================================================
+
     @Binds
     @Singleton
-    abstract fun bindLocationRepository(
-        implementation: LocationRepositoryImpl
-    ): LocationRepository
+    abstract fun bindBookingDataSource(
+        dataSource: MockBookingDataSource
+    ): BookingDataSource
 }

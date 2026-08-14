@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.shetty.mapbooking.presentation.screen.booking.BookingScreen
 import com.shetty.mapbooking.presentation.screen.location.LocationScreen
 import com.shetty.mapbooking.presentation.screen.map.MapScreen
 import com.shetty.mapbooking.presentation.screen.map.MapViewModel
@@ -170,8 +171,7 @@ fun AppNavigation() {
                         // BOOKING
                         // -------------------------------------
 
-                        NavigationEvent.Booking -> {
-
+                        is NavigationEvent.Booking -> {
                             navController.navigate(
                                 Screen.Booking.route
                             )
@@ -343,7 +343,33 @@ fun AppNavigation() {
             route = Screen.Booking.route
         ) {
 
-            Text("Booking Screen")
+            BookingScreen(
+
+                onHistory = {
+
+                    navController.navigate(
+                        Screen.History.route
+                    )
+                },
+
+                onBackToMap = {
+
+                    mapViewModel.resetMap()
+
+                    navController.navigate(
+                        Screen.Map.route
+                    ) {
+
+                        popUpTo(
+                            Screen.Map.route
+                        ) {
+                            inclusive = true
+                        }
+
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
 
 
