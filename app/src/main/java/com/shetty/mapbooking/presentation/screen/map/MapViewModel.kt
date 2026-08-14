@@ -106,7 +106,9 @@ class MapViewModel @Inject constructor(
                 selectedLocation = LatLng(
                     latitude,
                     longitude
-                )
+                ),
+                selectedLocationDetails = null,
+                error = null
             )
         }
     }

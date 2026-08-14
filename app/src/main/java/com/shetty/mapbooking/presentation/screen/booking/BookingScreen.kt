@@ -82,6 +82,7 @@ fun BookingScreen(
                 .padding(
                     start = 16.dp,
                     end = 16.dp,
+                    top = 20.dp,
                     bottom = 12.dp
                 )
         ) {
@@ -116,7 +117,6 @@ fun BookingScreen(
 
                 Text(
                     text = error,
-
                     color =
                         MaterialTheme.colorScheme.error
                 )
@@ -127,7 +127,6 @@ fun BookingScreen(
 
                 Button(
                     onClick = {
-
                         viewModel.clearError()
                         viewModel.createBooking()
                     },
@@ -181,8 +180,9 @@ fun BookingScreen(
 
                 Text(
                     text = "View History",
-
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    fontWeight =
+                        FontWeight.Bold
                 )
             }
 
@@ -205,9 +205,10 @@ fun BookingScreen(
             ) {
 
                 Text(
-                    text = "BACK",
-
-                    fontSize = 14.sp
+                    text = "Back",
+                    fontSize = 14.sp,
+                    fontWeight =
+                        FontWeight.Bold
                 )
             }
         }
@@ -233,12 +234,9 @@ private fun BookingDetailsContent(
         // =====================================================
 
         BookingLocationRow(
-            label = "A",
-
+            label = "Source",
             name = book.a.name,
-
             aqi = book.a.aqi,
-
             nickname =
                 book.a.nickname ?: ""
         )
@@ -262,7 +260,7 @@ private fun BookingDetailsContent(
         // =====================================================
 
         BookingLocationRow(
-            label = "B",
+            label = "Destination",
 
             name = book.b.name,
 
@@ -301,18 +299,14 @@ private fun BookingDetailsContent(
 
             Text(
                 text = "price",
-
                 fontSize = 14.sp,
-
                 fontWeight =
                     FontWeight.Bold
             )
 
             Text(
                 text = formatPrice(book.price),
-
                 fontSize = 16.sp,
-
                 fontWeight =
                     FontWeight.Bold
             )
@@ -343,13 +337,10 @@ private fun BookingLocationRow(
 
         Text(
             text = label,
-
             modifier = Modifier.width(
                 28.dp
             ),
-
             fontSize = 16.sp,
-
             fontWeight =
                 FontWeight.Bold
         )
@@ -369,9 +360,7 @@ private fun BookingLocationRow(
 
             Text(
                 text = name,
-
                 fontSize = 15.sp,
-
                 fontWeight =
                     FontWeight.Bold
             )
@@ -392,20 +381,15 @@ private fun BookingLocationRow(
 
                 Text(
                     text = "aqi",
-
                     fontSize = 12.sp,
-
                     modifier = Modifier.weight(1f)
                 )
 
                 Text(
                     text = aqi.toString(),
-
                     fontSize = 12.sp,
-
                     fontWeight =
                         FontWeight.Bold,
-
                     modifier = Modifier.weight(0.55f)
                 )
             }
@@ -425,21 +409,16 @@ private fun BookingLocationRow(
             ) {
 
                 Text(
-                    text = "nickname",
-
+                    text = "Nickname(Optional)",
                     fontSize = 12.sp,
-
                     modifier = Modifier.weight(1f)
                 )
 
                 Text(
                     text = nickname,
-
                     fontSize = 12.sp,
-
                     fontWeight =
                         FontWeight.Bold,
-
                     modifier = Modifier.weight(0.55f)
                 )
             }

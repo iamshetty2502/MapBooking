@@ -243,14 +243,17 @@ fun MapScreen(
             uiSettings =
                 MapUiSettings(
 
-                    // We use our own fixed center marker.
-                    myLocationButtonEnabled = false,
+                    myLocationButtonEnabled =
+                        false,
 
-                    zoomControlsEnabled = false,
+                    zoomControlsEnabled =
+                        false,
 
-                    compassEnabled = false,
+                    compassEnabled =
+                        false,
 
-                    mapToolbarEnabled = false
+                    mapToolbarEnabled =
+                        false
                 )
         )
 
@@ -267,9 +270,7 @@ fun MapScreen(
         // =====================================================
         // AQI
         // =====================================================
-
         uiState.selectedLocationDetails?.let { location ->
-
             Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -279,7 +280,7 @@ fun MapScreen(
                         end = 12.dp
                     )
                     .background(
-                        color = Color.White,
+                        color = Color.Transparent,
                         shape = RoundedCornerShape(6.dp)
                     )
                     .padding(
@@ -293,9 +294,7 @@ fun MapScreen(
 
                 Text(
                     text = "aqi",
-
                     fontSize = 13.sp,
-
                     color = Color.Gray
                 )
 
@@ -305,9 +304,7 @@ fun MapScreen(
 
                 Text(
                     text = "${location.aqi}",
-
                     fontSize = 16.sp,
-
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -334,7 +331,7 @@ fun MapScreen(
         // BOTTOM CONTROLS
         // =====================================================
 
-        Row(
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
@@ -343,115 +340,128 @@ fun MapScreen(
                     start = 12.dp,
                     end = 12.dp,
                     bottom = 12.dp
-                ),
-
-            verticalAlignment =
-                Alignment.Bottom
+                )
         ) {
 
 
             // =================================================
-            // A + B BUTTONS
+            // LOCATION A
             // =================================================
 
-            Column(
-                modifier =
-                    Modifier.weight(1f),
+            LocationButton(
+                text =
+                    uiState.aLocation?.displayName
+                        ?: "Source",
 
-                verticalArrangement =
-                    Arrangement.Bottom
-            ) {
+                enabled =
+                    uiState.aLocation != null,
 
+                onClick = {
 
-                // -------------------------------------------------
-                // LOCATION A
-                // -------------------------------------------------
-
-                LocationButton(
-                    text =
-                        uiState.aLocation?.displayName
-                            ?: "A",
-
-                    enabled =
-                        uiState.aLocation != null,
-
-                    onClick = {
-
-                        viewModel.onLocationAClicked()
-                    }
-                )
-
-
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
-
-
-                // -------------------------------------------------
-                // LOCATION B
-                // -------------------------------------------------
-
-                LocationButton(
-                    text =
-                        uiState.bLocation?.displayName
-                            ?: "B",
-
-                    enabled =
-                        uiState.bLocation != null,
-
-                    onClick = {
-
-                        viewModel.onLocationBClicked()
-                    }
-                )
-            }
+                    viewModel.onLocationAClicked()
+                }
+            )
 
 
             Spacer(
-                modifier = Modifier.width(10.dp)
+                modifier = Modifier.height(8.dp)
             )
 
 
             // =================================================
-            // V BUTTON
+            // LOCATION B
+            // =================================================
+
+            LocationButton(
+                text =
+                    uiState.bLocation?.displayName
+                        ?: "Destination",
+
+                enabled =
+                    uiState.bLocation != null,
+
+                onClick = {
+
+                    viewModel.onLocationBClicked()
+                }
+            )
+
+
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
+
+            // =================================================
+            // MAIN ACTION BUTTON
             // =================================================
 
             Button(
                 onClick = {
 
-                    val action =
-                        when {
+                    when {
 
-                            uiState.canSetA ->
+                        // -------------------------------------
+                        // STEP 1
+                        // -------------------------------------
+
+                        uiState.canSetA -> {
+
+                            viewModel.onAction(
                                 MapAction.SetA
-
-                            uiState.canSetB ->
-                                MapAction.SetB
-
-                            else ->
-                                MapAction.Book
+                            )
                         }
 
-                    viewModel.onAction(action)
+
+                        // -------------------------------------
+                        // STEP 2
+                        // -------------------------------------
+
+                        uiState.canSetB -> {
+
+                            viewModel.onAction(
+                                MapAction.SetB
+                            )
+                        }
+
+
+                        // -------------------------------------
+                        // STEP 3
+                        // -------------------------------------
+
+                        else -> {
+
+                            viewModel.onAction(
+                                MapAction.Book
+                            )
+                        }
+                    }
                 },
 
                 modifier = Modifier
-                    .width(58.dp)
-                    .height(82.dp),
-
-                shape =
-                    RoundedCornerShape(6.dp),
+                    .fillMaxWidth()
+                    .height(48.dp),
 
                 enabled =
                     !uiState.isLoadingLocation
             ) {
 
                 Text(
-                    text = "V",
+                    text = when {
 
-                    fontSize = 20.sp,
+                        uiState.canSetA ->
+                            "Select A Location"
 
-                    fontWeight = FontWeight.Bold
+                        uiState.canSetB ->
+                            "Select B Location"
+
+                        else ->
+                            "Book Now"
+                    },
+
+                    fontSize = 16.sp,
+                    fontWeight =
+                        FontWeight.Bold
                 )
             }
         }
@@ -487,7 +497,7 @@ fun MapScreen(
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding()
                     .padding(
-                        bottom = 120.dp,
+                        bottom = 130.dp,
                         start = 16.dp,
                         end = 16.dp
                     )
@@ -543,11 +553,9 @@ private fun LocationButton(
 
         Text(
             text = text,
-
             fontSize = 14.sp,
-
-            fontWeight = FontWeight.Bold,
-
+            fontWeight =
+                FontWeight.Bold,
             maxLines = 1
         )
     }

@@ -5,17 +5,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -23,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shetty.mapbooking.data.model.LocationDetails
 import com.shetty.mapbooking.presentation.components.AppHeader
+
 
 @Composable
 fun LocationScreen(
@@ -72,6 +76,7 @@ fun LocationScreen(
         modifier = Modifier
             .fillMaxSize()
             .navigationBarsPadding()
+            .imePadding()
     ) {
 
         // =====================================================
@@ -93,6 +98,7 @@ fun LocationScreen(
                 .weight(1f)
                 .padding(
                     start = 16.dp,
+                    top = 20.dp,
                     end = 16.dp,
                     bottom = 12.dp
                 )
@@ -107,7 +113,9 @@ fun LocationScreen(
 
                 fontSize = 16.sp,
 
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+
+                color = Color.Black
             )
 
 
@@ -127,7 +135,9 @@ fun LocationScreen(
 
                 fontSize = 16.sp,
 
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+
+                color = Color.Black
             )
 
 
@@ -142,14 +152,20 @@ fun LocationScreen(
             Text(
                 text = "aqi",
 
-                fontSize = 12.sp
+                fontSize = 12.sp,
+
+                color = Color.Gray
             )
 
             Text(
                 text =
                     "${uiState.location?.aqi ?: aqi}",
+
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
+
+                fontWeight = FontWeight.Bold,
+
+                color = Color.Black
             )
 
 
@@ -177,16 +193,25 @@ fun LocationScreen(
 
                 placeholder = {
                     Text(
-                        text = "nickname"
+                        text = "nickname",
+
+                        color = Color.Gray
                     )
                 },
+
+                textStyle =
+                    LocalTextStyle.current.copy(
+                        color = Color.Black
+                    ),
 
                 singleLine = true,
 
                 supportingText = {
                     Text(
                         text =
-                            "${uiState.nickname.length}/20"
+                            "${uiState.nickname.length}/20",
+
+                        color = Color.Gray
                     )
                 },
 
@@ -203,7 +228,7 @@ fun LocationScreen(
 
 
             // =================================================
-            // V / SAVE BUTTON
+            // UPDATE BUTTON
             // =================================================
 
             Button(
@@ -221,9 +246,10 @@ fun LocationScreen(
             ) {
 
                 Text(
-                    text = "V",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "Update",
+                    fontSize = 14.sp,
+                    fontWeight =
+                        FontWeight.Bold
                 )
             }
         }
