@@ -28,7 +28,7 @@ android {
 
     defaultConfig {
         applicationId = "com.shetty.mapbooking"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 37
 
         versionCode = 1

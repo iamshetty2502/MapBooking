@@ -13,6 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.shetty.mapbooking.presentation.screen.booking.BookingScreen
+import com.shetty.mapbooking.presentation.screen.history.HistoryScreen
 import com.shetty.mapbooking.presentation.screen.location.LocationScreen
 import com.shetty.mapbooking.presentation.screen.map.MapScreen
 import com.shetty.mapbooking.presentation.screen.map.MapViewModel
@@ -380,7 +381,11 @@ fun AppNavigation() {
         composable(
             route = Screen.History.route
         ) {
-            Text("History Screen")
+            HistoryScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
