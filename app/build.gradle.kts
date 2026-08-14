@@ -1,3 +1,4 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -12,6 +13,19 @@ android {
         version = release(37)
     }
 
+    val localProperties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use {
+            localProperties.load(it)
+        }
+    }
+    val mapsApiKey =
+        localProperties.getProperty("MAPS_API_KEY", "")
+
+    val aqiApiKey =
+        localProperties.getProperty("AQI_API_KEY", "")
+
     defaultConfig {
         applicationId = "com.shetty.mapbooking"
         minSdk = 24
@@ -21,6 +35,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "AQI_API_KEY",
+            "\"$aqiApiKey\""
+        )
+
+        buildConfigField(
+            "String",
+            "MAPS_API_KEY",
+            "\"$mapsApiKey\""
+        )
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
@@ -38,6 +65,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

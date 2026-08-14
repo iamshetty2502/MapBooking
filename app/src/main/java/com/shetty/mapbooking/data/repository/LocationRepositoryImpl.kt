@@ -1,5 +1,6 @@
 package com.shetty.mapbooking.data.repository
 
+import com.shetty.mapbooking.BuildConfig
 import com.shetty.mapbooking.data.model.LocationDetails
 import com.shetty.mapbooking.data.remote.AirQualityApi
 import com.shetty.mapbooking.data.remote.ReverseGeocodingApi
@@ -24,7 +25,7 @@ class LocationRepositoryImpl @Inject constructor(
                 airQualityApi.getAirQuality(
                     latitude = latitude,
                     longitude = longitude,
-                    token = "TEMP_TOKEN"
+                    token = BuildConfig.AQI_API_KEY
                 )
 
             val reverseGeocodeResponse =
@@ -38,6 +39,7 @@ class LocationRepositoryImpl @Inject constructor(
                 .administrative
                 .sortedByDescending { it.order }
                 .take(2)
+                .reversed()
                 .joinToString(", ") { it.name }
 
             LocationDetails(

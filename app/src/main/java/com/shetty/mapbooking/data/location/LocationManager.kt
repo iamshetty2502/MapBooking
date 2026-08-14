@@ -1,0 +1,47 @@
+package com.shetty.mapbooking.data.location
+
+import android.annotation.SuppressLint
+import android.content.Context
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+
+class LocationManager(
+    context: Context
+) {
+
+    private val fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
+
+    @SuppressLint("MissingPermission")
+    suspend fun getCurrentLocation(): android.location.Location? {
+
+        val cancellationTokenSource =
+            CancellationTokenSource()
+
+        return suspendCancellableCoroutine { continuation ->
+
+            fusedLocationClient
+                .getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    cancellationTokenSource.token
+                )
+                .addOnSuccessListener { location ->
+
+                    continuation.resume(location)
+                }
+                .addOnFailureListener {
+
+                    continuation.resume(null)
+                }
+
+            continuation.invokeOnCancellation {
+
+                cancellationTokenSource.cancel()
+            }
+        }
+    }
+}
