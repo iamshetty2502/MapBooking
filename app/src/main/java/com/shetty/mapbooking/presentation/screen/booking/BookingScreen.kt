@@ -466,12 +466,7 @@ private fun BookingLocationCard(
             )
 
             Text(
-                text =
-                    if (nickname.isNullOrBlank()) {
-                        "Optional"
-                    } else {
-                        nickname
-                    },
+                text = nickname?.takeIf { it.isNotBlank() } ?: "-",
                 fontSize = 13.sp,
                 fontWeight =
                     FontWeight.Bold,
