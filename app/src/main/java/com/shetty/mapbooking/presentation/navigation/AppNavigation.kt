@@ -279,22 +279,11 @@ fun AppNavigation() {
             // -------------------------------------------------
 
             LocationScreen(
-
                 type = type,
-
                 latitude = latitude,
-
                 longitude = longitude,
-
                 aqi = aqi,
-
                 name = name,
-
-
-                // ---------------------------------------------
-                // SAVE
-                // ---------------------------------------------
-
                 onSave = { locationType, nickname ->
 
                     /*
@@ -322,14 +311,7 @@ fun AppNavigation() {
 
                     navController.popBackStack()
                 },
-
-
-                // ---------------------------------------------
-                // BACK
-                // ---------------------------------------------
-
                 onBack = {
-
                     navController.popBackStack()
                 }
             )

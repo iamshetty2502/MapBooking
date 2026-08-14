@@ -1,5 +1,7 @@
 package com.shetty.mapbooking.presentation.screen.booking
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,10 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +50,7 @@ fun BookingScreen(
     // =========================================================
 
     LaunchedEffect(Unit) {
+
         viewModel.createBooking()
     }
 
@@ -117,6 +120,7 @@ fun BookingScreen(
 
                 Text(
                     text = error,
+
                     color =
                         MaterialTheme.colorScheme.error
                 )
@@ -127,11 +131,14 @@ fun BookingScreen(
 
                 Button(
                     onClick = {
+
                         viewModel.clearError()
+
                         viewModel.createBooking()
                     },
 
-                    modifier = Modifier.fillMaxWidth()
+                    modifier =
+                        Modifier.fillMaxWidth()
                 ) {
 
                     Text(
@@ -180,7 +187,9 @@ fun BookingScreen(
 
                 Text(
                     text = "View History",
+
                     fontSize = 14.sp,
+
                     fontWeight =
                         FontWeight.Bold
                 )
@@ -206,7 +215,9 @@ fun BookingScreen(
 
                 Text(
                     text = "Back",
+
                     fontSize = 14.sp,
+
                     fontWeight =
                         FontWeight.Bold
                 )
@@ -230,65 +241,49 @@ private fun BookingDetailsContent(
     ) {
 
         // =====================================================
-        // LOCATION A
+        // SOURCE
         // =====================================================
 
-        BookingLocationRow(
+        BookingLocationCard(
             label = "Source",
             name = book.a.name,
             aqi = book.a.aqi,
-            nickname =
-                book.a.nickname ?: ""
+            nickname = book.a.nickname
         )
 
 
         Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-
-        HorizontalDivider()
-
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier = Modifier.height(12.dp)
         )
 
 
         // =====================================================
-        // LOCATION B
+        // DESTINATION
         // =====================================================
 
-        BookingLocationRow(
+        BookingLocationCard(
             label = "Destination",
-
             name = book.b.name,
-
             aqi = book.b.aqi,
-
-            nickname =
-                book.b.nickname ?: ""
+            nickname = book.b.nickname
         )
 
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier = Modifier.height(16.dp)
         )
-
-
-        HorizontalDivider()
 
 
         // =====================================================
         // PRICE
         // =====================================================
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
-
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 4.dp
+                ),
 
             horizontalArrangement =
                 Arrangement.SpaceBetween,
@@ -298,17 +293,16 @@ private fun BookingDetailsContent(
         ) {
 
             Text(
-                text = "price",
-                fontSize = 14.sp,
+                text = "Price",
+                fontSize = 16.sp,
                 fontWeight =
                     FontWeight.Bold
             )
 
             Text(
-                text = formatPrice(book.price),
-                fontSize = 16.sp,
-                fontWeight =
-                    FontWeight.Bold
+                text ="${formatPrice(book.price)} /-",
+                fontSize = 18.sp,
+                color = Color.Black
             )
         }
     }
@@ -316,112 +310,136 @@ private fun BookingDetailsContent(
 
 
 // =============================================================
-// LOCATION ROW
+// LOCATION CARD
 // =============================================================
 
 @Composable
-private fun BookingLocationRow(
+private fun BookingLocationCard(
     label: String,
     name: String,
     aqi: Int,
-    nickname: String
+    nickname: String?
 ) {
 
-    Row(
-        modifier = Modifier.fillMaxWidth()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                border = BorderStroke(
+                    width = 1.dp,
+                    color =
+                        MaterialTheme
+                            .colorScheme
+                            .outline
+                ),
+                shape =
+                    RoundedCornerShape(
+                        10.dp
+                    )
+            )
+            .padding(14.dp)
     ) {
 
         // =====================================================
-        // A / B
+        // SOURCE / DESTINATION
         // =====================================================
 
         Text(
-            text = label,
-            modifier = Modifier.width(
-                28.dp
-            ),
-            fontSize = 16.sp,
+            text = label.uppercase(),
+            fontSize = 13.sp,
             fontWeight =
-                FontWeight.Bold
+                FontWeight.Bold,
+            color =
+                MaterialTheme
+                    .colorScheme
+                    .primary
+        )
+
+
+        Spacer(
+            modifier = Modifier.height(4.dp)
         )
 
 
         // =====================================================
-        // LOCATION INFORMATION
+        // LOCATION NAME
         // =====================================================
 
-        Column(
-            modifier = Modifier.weight(1f)
+        Text(
+            text = name,
+            fontSize = 16.sp,
+            fontWeight =
+                FontWeight.Bold,
+            color = Color.DarkGray
+        )
+
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+
+        // =====================================================
+        // AQI
+        // =====================================================
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement =
+                Arrangement.SpaceBetween
         ) {
 
-            // -------------------------------------------------
-            // LOCATION NAME
-            // -------------------------------------------------
+            Text(
+                text = "AQI",
+                fontSize = 13.sp,
+                fontWeight =
+                    FontWeight.Bold,
+                color =
+                    MaterialTheme
+                        .colorScheme
+                        .onSecondaryFixed
+            )
 
             Text(
-                text = name,
-                fontSize = 15.sp,
+                text = aqi.toString(),
+                fontSize = 13.sp,
+                color = Color.DarkGray
+            )
+        }
+
+
+        Spacer(
+            modifier = Modifier.height(6.dp)
+        )
+
+
+        // =====================================================
+        // NICKNAME
+        // =====================================================
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement =
+                Arrangement.SpaceBetween
+        ) {
+
+            Text(
+                text = "Nickname",
+                fontSize = 13.sp,
                 fontWeight =
                     FontWeight.Bold
             )
 
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
+            Text(
+                text =
+                    if (nickname.isNullOrBlank()) {
+                        "Optional"
+                    } else {
+                        nickname
+                    },
+                fontSize = 13.sp,
+                color = Color.DarkGray
             )
-
-
-            // -------------------------------------------------
-            // AQI
-            // -------------------------------------------------
-
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text(
-                    text = "aqi",
-                    fontSize = 12.sp,
-                    modifier = Modifier.weight(1f)
-                )
-
-                Text(
-                    text = aqi.toString(),
-                    fontSize = 12.sp,
-                    fontWeight =
-                        FontWeight.Bold,
-                    modifier = Modifier.weight(0.55f)
-                )
-            }
-
-
-            Spacer(
-                modifier = Modifier.height(6.dp)
-            )
-
-
-            // -------------------------------------------------
-            // NICKNAME
-            // -------------------------------------------------
-
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text(
-                    text = "Nickname(Optional)",
-                    fontSize = 12.sp,
-                    modifier = Modifier.weight(1f)
-                )
-
-                Text(
-                    text = nickname,
-                    fontSize = 12.sp,
-                    fontWeight =
-                        FontWeight.Bold,
-                    modifier = Modifier.weight(0.55f)
-                )
-            }
         }
     }
 }
@@ -436,7 +454,6 @@ private fun formatPrice(
 ): String {
 
     return if (price % 1.0 == 0.0) {
-
         price
             .toLong()
             .toString()

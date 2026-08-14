@@ -450,15 +450,14 @@ fun MapScreen(
                     text = when {
 
                         uiState.canSetA ->
-                            "Select A Location"
+                            "Select Source"
 
                         uiState.canSetB ->
-                            "Select B Location"
+                            "Select Destination"
 
                         else ->
                             "Book Now"
                     },
-
                     fontSize = 16.sp,
                     fontWeight =
                         FontWeight.Bold
@@ -490,9 +489,7 @@ fun MapScreen(
 
             Text(
                 text = error,
-
                 color = Color.Red,
-
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding()
