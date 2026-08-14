@@ -1,5 +1,6 @@
 package com.shetty.mapbooking.presentation.screen.history
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,10 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,9 +66,6 @@ fun HistoryScreen(
         modifier = Modifier
             .fillMaxSize()
             .navigationBarsPadding()
-            .padding(
-                bottom = 12.dp
-            )
     ) {
 
         // =====================================================
@@ -80,89 +81,10 @@ fun HistoryScreen(
         // SUMMARY
         // =====================================================
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 12.dp,
-                    bottom = 12.dp
-                ),
-
-            horizontalArrangement =
-                Arrangement.SpaceBetween
-        ) {
-
-            // -------------------------------------------------
-            // TOTAL COUNT
-            // -------------------------------------------------
-
-            Column(
-                horizontalAlignment =
-                    Alignment.CenterHorizontally
-            ) {
-
-                Text(
-                    text = "Total Count",
-
-                    fontSize = 12.sp,
-
-                    fontWeight =
-                        FontWeight.Bold
-                )
-
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
-
-                Text(
-                    text =
-                        uiState.totalItems.toString(),
-
-                    fontSize = 16.sp,
-
-                    fontWeight =
-                        FontWeight.Bold
-                )
-            }
-
-
-            // -------------------------------------------------
-            // TOTAL PRICE
-            // -------------------------------------------------
-
-            Column(
-                horizontalAlignment =
-                    Alignment.CenterHorizontally
-            ) {
-
-                Text(
-                    text = "Total Price",
-
-                    fontSize = 12.sp,
-
-                    fontWeight =
-                        FontWeight.Bold
-                )
-
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
-
-                Text(
-                    text =
-                        formatPrice(
-                            uiState.totalPrice
-                        ),
-
-                    fontSize = 16.sp,
-
-                    fontWeight =
-                        FontWeight.Bold
-                )
-            }
-        }
+        HistorySummary(
+            totalItems = uiState.totalItems,
+            totalPrice = uiState.totalPrice
+        )
 
 
         // =====================================================
@@ -178,13 +100,29 @@ fun HistoryScreen(
 
         if (uiState.isLoading) {
 
-            CircularProgressIndicator(
+            Column(
                 modifier = Modifier
-                    .align(
-                        Alignment.CenterHorizontally
-                    )
-                    .padding(16.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(20.dp),
+
+                horizontalAlignment =
+                    Alignment.CenterHorizontally
+            ) {
+
+                CircularProgressIndicator()
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+
+                Text(
+                    text = "Loading history...",
+
+                    fontSize = 13.sp,
+
+                    color = Color.Gray
+                )
+            }
         }
 
 
@@ -214,15 +152,24 @@ fun HistoryScreen(
                 .fillMaxWidth()
                 .weight(1f),
 
+            contentPadding =
+                androidx.compose.foundation.layout
+                    .PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 12.dp,
+                        bottom = 12.dp
+                    ),
+
             verticalArrangement =
-                Arrangement.Top
+                Arrangement.spacedBy(12.dp)
         ) {
 
             items(
                 items = uiState.books
             ) { book ->
 
-                HistoryItem(
+                HistoryBookingCard(
                     book = book
                 )
             }
@@ -235,17 +182,21 @@ fun HistoryScreen(
 
         Button(
             onClick = onBack,
+
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = 16.dp
+                    horizontal = 16.dp,
+                    vertical = 12.dp
                 )
                 .height(48.dp)
         ) {
 
             Text(
                 text = "Back",
+
                 fontSize = 14.sp,
+
                 fontWeight =
                     FontWeight.Bold
             )
@@ -255,89 +206,249 @@ fun HistoryScreen(
 
 
 // =============================================================
-// HISTORY ITEM
+// HISTORY SUMMARY
 // =============================================================
 
 @Composable
-private fun HistoryItem(
-    book: BookDetails
+private fun HistorySummary(
+    totalItems: Int,
+    totalPrice: Double
 ) {
 
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = 16.dp,
+                vertical = 14.dp
+            ),
+
+        horizontalArrangement =
+            Arrangement.SpaceBetween
     ) {
 
         // =====================================================
-        // LOCATION A
+        // TOTAL BOOKINGS
         // =====================================================
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = 16.dp,
-                    vertical = 10.dp
-                )
+        Column {
+
+            Text(
+                text = "Total Bookings",
+
+                fontSize = 12.sp,
+
+                fontWeight =
+                    FontWeight.Bold,
+
+                color = Color.Gray
+            )
+
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
+            Text(
+                text = totalItems.toString(),
+
+                fontSize = 20.sp,
+
+                fontWeight =
+                    FontWeight.Bold,
+
+                color = Color.Black
+            )
+        }
+
+
+        // =====================================================
+        // TOTAL SPENT
+        // =====================================================
+
+        Column(
+            horizontalAlignment =
+                Alignment.End
         ) {
 
             Text(
-                text = "A",
-                modifier = Modifier.width(
-                    32.dp
-                ),
-                fontSize = 13.sp,
+                text = "Total Spent",
+
+                fontSize = 12.sp,
+
                 fontWeight =
-                    FontWeight.Bold
+                    FontWeight.Bold,
+
+                color = Color.Gray
             )
+
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
+            Text(
+                text = formatPrice(totalPrice),
+
+                fontSize = 20.sp,
+
+                fontWeight =
+                    FontWeight.Bold,
+
+                color = Color.Black
+            )
+        }
+    }
+}
+
+
+// =============================================================
+// HISTORY BOOKING CARD
+// =============================================================
+
+@Composable
+private fun HistoryBookingCard(
+    book: BookDetails
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+
+        shape =
+            RoundedCornerShape(10.dp),
+
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme
+                    .colorScheme
+                    .primary.copy(
+                        alpha = 0.15f
+                    )
+            ),
+
+        border =
+            BorderStroke(
+                width = 1.5.dp,
+                color =
+                    MaterialTheme
+                        .colorScheme
+                        .primary
+                        .copy(
+                            alpha = 0.75f
+                        )
+            )
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp)
+        ) {
+
+            // =================================================
+            // SOURCE
+            // =================================================
+
+            Text(
+                text = "SOURCE",
+                fontSize = 11.sp,
+                fontWeight =
+                    FontWeight.Bold,
+                color = Color.Gray
+            )
+
+
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
 
             Text(
                 text = book.a.name,
-                fontSize = 13.sp,
+                fontSize = 15.sp,
                 fontWeight =
-                    FontWeight.Bold
+                    FontWeight.Bold,
+                color = Color.Black
             )
-        }
 
 
-        // =====================================================
-        // LOCATION B
-        // =====================================================
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = 16.dp,
-                    vertical = 10.dp
-                )
-        ) {
+
+            // =================================================
+            // DESTINATION
+            // =================================================
 
             Text(
-                text = "B",
-                modifier = Modifier.width(
-                    32.dp
-                ),
-                fontSize = 13.sp,
+                text = "DESTINATION",
+                fontSize = 11.sp,
                 fontWeight =
-                    FontWeight.Bold
+                    FontWeight.Bold,
+                color = Color.Gray
             )
+
+
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
 
             Text(
                 text = book.b.name,
-
-                fontSize = 13.sp,
-
+                fontSize = 15.sp,
                 fontWeight =
-                    FontWeight.Bold
+                    FontWeight.Bold,
+                color = Color.Black
             )
+
+
+            Spacer(
+                modifier = Modifier.height(14.dp)
+            )
+
+
+            // =================================================
+            // DIVIDER
+            // =================================================
+
+            HorizontalDivider()
+
+
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
+
+            // =================================================
+            // PRICE
+            // =================================================
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement =
+                    Arrangement.SpaceBetween,
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Text(
+                    text = "Price",
+                    fontSize = 13.sp,
+                    color = Color.Gray
+                )
+
+                Text(
+                    text =
+                        formatPrice(
+                            book.price
+                        ),
+                    fontSize = 15.sp,
+                    fontWeight =
+                        FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
         }
-
-
-        // =====================================================
-        // DIVIDER
-        // =====================================================
-
-        HorizontalDivider()
     }
 }
 
@@ -351,13 +462,11 @@ private fun formatPrice(
 ): String {
 
     return if (price % 1.0 == 0.0) {
-
         price
             .toLong()
             .toString()
 
     } else {
-
         price.toString()
     }
 }

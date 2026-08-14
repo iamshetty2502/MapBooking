@@ -20,6 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shetty.mapbooking.data.model.BookDetails
 import com.shetty.mapbooking.presentation.components.AppHeader
+import com.shetty.mapbooking.presentation.components.ConfirmationDialog
 
 
 @Composable
@@ -43,6 +47,10 @@ fun BookingScreen(
     // =========================================================
 
     val uiState by viewModel.uiState.collectAsState()
+
+    var showBackConfirmation by remember {
+        mutableStateOf(false)
+    }
 
 
     // =========================================================
@@ -122,7 +130,9 @@ fun BookingScreen(
                     text = error,
 
                     color =
-                        MaterialTheme.colorScheme.error
+                        MaterialTheme
+                            .colorScheme
+                            .error
                 )
 
                 Spacer(
@@ -187,9 +197,7 @@ fun BookingScreen(
 
                 Text(
                     text = "View History",
-
                     fontSize = 14.sp,
-
                     fontWeight =
                         FontWeight.Bold
                 )
@@ -206,23 +214,48 @@ fun BookingScreen(
             // =================================================
 
             Button(
-                onClick = onBackToMap,
+                onClick = {
+
+                    showBackConfirmation = true
+                },
 
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .height(48.dp),
+                enabled = !uiState.isLoading
             ) {
 
                 Text(
                     text = "Back",
-
                     fontSize = 14.sp,
-
                     fontWeight =
                         FontWeight.Bold
                 )
             }
         }
+    }
+
+
+    // =========================================================
+    // BACK CONFIRMATION
+    // =========================================================
+
+    if (showBackConfirmation) {
+        ConfirmationDialog(
+            title = "Go Back?",
+            message =
+                "If you go back, the booking information will be reset. Do you want to continue?",
+            confirmText = "Yes",
+            dismissText = "No",
+            onConfirm = {
+                showBackConfirmation = false
+                onBackToMap()
+            },
+
+            onDismiss = {
+                showBackConfirmation = false
+            }
+        )
     }
 }
 
@@ -285,23 +318,24 @@ private fun BookingDetailsContent(
                     horizontal = 4.dp
                 ),
 
-            horizontalArrangement =
-                Arrangement.SpaceBetween,
-
-            verticalAlignment =
-                Alignment.CenterVertically
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
             Text(
                 text = "Price",
                 fontSize = 16.sp,
                 fontWeight =
-                    FontWeight.Bold
+                    FontWeight.Bold,
+                color = Color.Black
             )
 
             Text(
-                text ="${formatPrice(book.price)} /-",
+                text =
+                    "${formatPrice(book.price)} /-",
                 fontSize = 18.sp,
+                fontWeight =
+                    FontWeight.Bold,
                 color = Color.Black
             )
         }
@@ -330,8 +364,12 @@ private fun BookingLocationCard(
                     color =
                         MaterialTheme
                             .colorScheme
-                            .outline
+                            .primary
+                            .copy(
+                                alpha = 0.35f
+                            )
                 ),
+
                 shape =
                     RoundedCornerShape(
                         10.dp
@@ -349,10 +387,7 @@ private fun BookingLocationCard(
             fontSize = 13.sp,
             fontWeight =
                 FontWeight.Bold,
-            color =
-                MaterialTheme
-                    .colorScheme
-                    .primary
+            color = Color.Black
         )
 
 
@@ -370,7 +405,7 @@ private fun BookingLocationCard(
             fontSize = 16.sp,
             fontWeight =
                 FontWeight.Bold,
-            color = Color.DarkGray
+            color = Color.Black
         )
 
 
@@ -394,16 +429,15 @@ private fun BookingLocationCard(
                 fontSize = 13.sp,
                 fontWeight =
                     FontWeight.Bold,
-                color =
-                    MaterialTheme
-                        .colorScheme
-                        .onSecondaryFixed
+                color = Color.Black
             )
 
             Text(
                 text = aqi.toString(),
                 fontSize = 13.sp,
-                color = Color.DarkGray
+                fontWeight =
+                    FontWeight.Bold,
+                color = Color.Gray
             )
         }
 
@@ -427,7 +461,8 @@ private fun BookingLocationCard(
                 text = "Nickname",
                 fontSize = 13.sp,
                 fontWeight =
-                    FontWeight.Bold
+                    FontWeight.Bold,
+                color = Color.Black
             )
 
             Text(
@@ -438,7 +473,13 @@ private fun BookingLocationCard(
                         nickname
                     },
                 fontSize = 13.sp,
-                color = Color.DarkGray
+                fontWeight =
+                    FontWeight.Bold,
+                color =  if (nickname.isNullOrBlank()) {
+                    Color.LightGray
+                } else {
+                    Color.DarkGray
+                }
             )
         }
     }
@@ -454,6 +495,7 @@ private fun formatPrice(
 ): String {
 
     return if (price % 1.0 == 0.0) {
+
         price
             .toLong()
             .toString()
