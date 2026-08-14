@@ -296,6 +296,93 @@ class MapViewModel @Inject constructor(
     }
 
 
+
+    // =========================================================
+    // Location A Label Click
+    // =========================================================
+    fun onLocationAClicked() {
+
+        val location =
+            _uiState.value.aLocation
+                ?: return
+
+        viewModelScope.launch {
+
+            _navigationEvent.emit(
+                NavigationEvent.LocationA(
+                    location = location
+                )
+            )
+        }
+    }
+
+
+    // =========================================================
+    // Location A Label Click
+    // =========================================================
+    fun onLocationBClicked() {
+
+        val location =
+            _uiState.value.bLocation
+                ?: return
+
+        viewModelScope.launch {
+
+            _navigationEvent.emit(
+                NavigationEvent.LocationB(
+                    location = location
+                )
+            )
+        }
+    }
+
+
+    fun updateNickname(
+        type: String,
+        nickname: String
+    ) {
+
+        val trimmedNickname = nickname.trim()
+
+        _uiState.update { state ->
+
+            when (type) {
+
+                "A" -> {
+
+                    val location =
+                        state.aLocation
+                            ?: return@update state
+
+                    state.copy(
+                        aLocation = location.copy(
+                            nickname =
+                                trimmedNickname
+                                    .takeIf { it.isNotBlank() }
+                        )
+                    )
+                }
+
+                "B" -> {
+
+                    val location =
+                        state.bLocation
+                            ?: return@update state
+
+                    state.copy(
+                        bLocation = location.copy(
+                            nickname =
+                                trimmedNickname
+                                    .takeIf { it.isNotBlank() }
+                        )
+                    )
+                }
+
+                else -> state
+            }
+        }
+    }
+
     // =========================================================
     // ERROR
     // =========================================================

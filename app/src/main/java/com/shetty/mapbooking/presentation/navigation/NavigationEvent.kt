@@ -1,10 +1,16 @@
 package com.shetty.mapbooking.presentation.navigation
 
+import com.shetty.mapbooking.data.model.LocationDetails
+
 sealed interface NavigationEvent {
 
-    data object LocationA : NavigationEvent
+    data class LocationA(
+        val location: LocationDetails
+    ) : NavigationEvent
 
-    data object LocationB : NavigationEvent
+    data class LocationB(
+        val location: LocationDetails
+    ) : NavigationEvent
 
     data object Booking : NavigationEvent
 

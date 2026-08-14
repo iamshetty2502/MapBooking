@@ -1,19 +1,41 @@
 package com.shetty.mapbooking.presentation.navigation
 
+import android.net.Uri
+
 sealed class Screen(
     val route: String
 ) {
 
-    data object Map : Screen("map")
+    data object Map : Screen(
+        route = "map"
+    )
 
-    data object Location : Screen("location/{type}") {
+    data object Location : Screen(
+        route = "location/{type}/{latitude}/{longitude}/{aqi}/{name}"
+    ) {
 
-        fun createRoute(type: String): String {
-            return "location/$type"
+        fun createRoute(
+            type: String,
+            latitude: Double,
+            longitude: Double,
+            aqi: Int,
+            name: String
+        ): String {
+
+            return "location/" +
+                    "${Uri.encode(type)}/" +
+                    "$latitude/" +
+                    "$longitude/" +
+                    "$aqi/" +
+                    Uri.encode(name)
         }
     }
 
-    data object Booking : Screen("booking")
+    data object Booking : Screen(
+        route = "booking"
+    )
 
-    data object History : Screen("history")
+    data object History : Screen(
+        route = "history"
+    )
 }

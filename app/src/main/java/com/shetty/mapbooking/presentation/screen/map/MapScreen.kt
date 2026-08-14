@@ -36,11 +36,8 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.shetty.mapbooking.presentation.navigation.NavigationEvent
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlin.time.Duration.Companion.milliseconds
-
 
 @Composable
 fun MapScreen(
@@ -48,9 +45,23 @@ fun MapScreen(
     viewModel: MapViewModel = hiltViewModel()
 ) {
 
+    // =========================================================
+    // CONTEXT
+    // =========================================================
+
     val context = LocalContext.current
 
+
+    // =========================================================
+    // UI STATE
+    // =========================================================
+
     val uiState by viewModel.uiState.collectAsState()
+
+
+    // =========================================================
+    // MAP STATE
+    // =========================================================
 
     val mapState = rememberCameraPositionState()
 
@@ -61,7 +72,8 @@ fun MapScreen(
 
     val permissionLauncher =
         rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestMultiplePermissions()
+            contract =
+                ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
 
             val fineLocationGranted =
@@ -141,6 +153,21 @@ fun MapScreen(
     // SELECTED LOCATION TRACKING
     // =========================================================
 
+    /*
+     * The map itself does not move a marker.
+     *
+     * The marker remains fixed in the center while the map
+     * moves underneath it.
+     *
+     * Once the user stops moving the map:
+     *
+     * map center
+     *      ↓
+     * selectedLocation
+     *      ↓
+     * AQI + reverse geocoding
+     */
+
     LaunchedEffect(mapState) {
 
         snapshotFlow {
@@ -156,9 +183,12 @@ fun MapScreen(
                     mapState.position.target
 
                 viewModel.onSelectedLocationChanged(
-                    latitude = selectedLocation.latitude,
-                    longitude = selectedLocation.longitude
+                    latitude =
+                        selectedLocation.latitude,
+                    longitude =
+                        selectedLocation.longitude
                 )
+
                 viewModel.loadSelectedLocationDetails()
             }
     }
@@ -185,9 +215,10 @@ fun MapScreen(
         modifier = Modifier.fillMaxSize()
     ) {
 
-        // -----------------------------------------------------
+
+        // =====================================================
         // GOOGLE MAP
-        // -----------------------------------------------------
+        // =====================================================
 
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -207,9 +238,10 @@ fun MapScreen(
         )
 
 
-        // -----------------------------------------------------
-        // Display AQI
-        // -----------------------------------------------------
+        // =====================================================
+        // AQI
+        // =====================================================
+
         uiState.selectedLocationDetails?.let { location ->
 
             Text(
@@ -233,40 +265,42 @@ fun MapScreen(
         }
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // FIXED CENTER MARKER
-        // -----------------------------------------------------
-        //
-        // The marker stays fixed in the center.
-        // The map moves underneath it.
-        //
+        // =====================================================
 
         Text(
             text = "📍",
-            modifier = Modifier.align(
-                Alignment.Center
-            )
+
+            modifier = Modifier
+                .align(Alignment.Center)
         )
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // SELECTED LOCATION DEBUG INFO
-        // -----------------------------------------------------
-        //
-        // Temporary.
-        // We will remove this when implementing the final Figma UI.
-        //
+        // =====================================================
+
+        /*
+         * Temporary debug information.
+         *
+         * Keep this while developing.
+         * We can remove it during Figma UI implementation.
+         */
 
         uiState.selectedLocation?.let { location ->
 
             Text(
                 text = buildString {
+
                     append(
                         "Lat: %.6f".format(
                             location.latitude
                         )
                     )
+
                     append("\n")
+
                     append(
                         "Lng: %.6f".format(
                             location.longitude
@@ -289,9 +323,9 @@ fun MapScreen(
         }
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // BOTTOM PANEL
-        // -----------------------------------------------------
+        // =====================================================
 
         Column(
             modifier = Modifier
@@ -299,25 +333,46 @@ fun MapScreen(
                 .fillMaxWidth()
                 .padding(16.dp),
 
-            verticalArrangement = Arrangement.Bottom
+            verticalArrangement =
+                Arrangement.Bottom
         ) {
 
-            // -------------------------------------------------
+
+            // =================================================
             // A LABEL
-            // -------------------------------------------------
+            // =================================================
 
-            Text(
-                text = uiState.aLocation?.name
-                    ?: "A Location",
+            uiState.aLocation?.let { location ->
 
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = Color.White,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(16.dp)
-            )
+                Text(
+                    text = location.displayName,
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .clickable {
+                            viewModel.onLocationAClicked()
+                        }
+                        .padding(16.dp)
+                )
+
+            } ?: run {
+
+                Text(
+                    text = "A Location",
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(16.dp)
+                )
+            }
 
 
             Spacer(
@@ -325,22 +380,41 @@ fun MapScreen(
             )
 
 
-            // -------------------------------------------------
+            // =================================================
             // B LABEL
-            // -------------------------------------------------
+            // =================================================
 
-            Text(
-                text = uiState.bLocation?.name
-                    ?: "B Location",
+            uiState.bLocation?.let { location ->
 
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = Color.White,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(16.dp)
-            )
+                Text(
+                    text = location.displayName,
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .clickable {
+                            viewModel.onLocationBClicked()
+                        }
+                        .padding(16.dp)
+                )
+
+            } ?: run {
+
+                Text(
+                    text = "B Location",
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(16.dp)
+                )
+            }
 
 
             Spacer(
@@ -348,9 +422,9 @@ fun MapScreen(
             )
 
 
-            // -------------------------------------------------
+            // =================================================
             // SET A / SET B / BOOK
-            // -------------------------------------------------
+            // =================================================
 
             Button(
                 onClick = {
@@ -372,7 +446,8 @@ fun MapScreen(
 
                 modifier = Modifier.fillMaxWidth(),
 
-                enabled = !uiState.isLoadingLocation
+                enabled =
+                    !uiState.isLoadingLocation
             ) {
 
                 Text(
@@ -382,23 +457,24 @@ fun MapScreen(
         }
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // LOADING
-        // -----------------------------------------------------
+        // =====================================================
 
         if (uiState.isLoadingLocation) {
 
             CircularProgressIndicator(
-                modifier = Modifier.align(
-                    Alignment.Center
-                )
+                modifier =
+                    Modifier.align(
+                        Alignment.Center
+                    )
             )
         }
 
 
-        // -----------------------------------------------------
+        // =====================================================
         // ERROR
-        // -----------------------------------------------------
+        // =====================================================
 
         uiState.error?.let { error ->
 
