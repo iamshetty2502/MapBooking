@@ -9,11 +9,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,7 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.CameraPosition
@@ -35,9 +41,11 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.shetty.mapbooking.presentation.components.AppHeader
 import com.shetty.mapbooking.presentation.navigation.NavigationEvent
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+
 
 @Composable
 fun MapScreen(
@@ -63,7 +71,8 @@ fun MapScreen(
     // MAP STATE
     // =========================================================
 
-    val mapState = rememberCameraPositionState()
+    val mapState =
+        rememberCameraPositionState()
 
 
     // =========================================================
@@ -133,7 +142,7 @@ fun MapScreen(
 
 
     // =========================================================
-    // MOVE MAP TO USER'S INITIAL LOCATION
+    // MOVE MAP TO CURRENT LOCATION
     // =========================================================
 
     LaunchedEffect(uiState.currentLocation) {
@@ -154,16 +163,15 @@ fun MapScreen(
     // =========================================================
 
     /*
-     * The map itself does not move a marker.
+     * The marker stays fixed in the center.
      *
-     * The marker remains fixed in the center while the map
-     * moves underneath it.
+     * The map moves underneath the marker.
      *
-     * Once the user stops moving the map:
+     * When the user stops moving:
      *
      * map center
      *      ↓
-     * selectedLocation
+     * selected location
      *      ↓
      * AQI + reverse geocoding
      */
@@ -208,7 +216,7 @@ fun MapScreen(
 
 
     // =========================================================
-    // UI
+    // SCREEN
     // =========================================================
 
     Box(
@@ -223,18 +231,36 @@ fun MapScreen(
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
 
-            cameraPositionState = mapState,
+            cameraPositionState =
+                mapState,
 
-            properties = MapProperties(
-                isMyLocationEnabled =
-                    uiState.currentLocation != null
-            ),
+            properties =
+                MapProperties(
+                    isMyLocationEnabled =
+                        uiState.currentLocation != null
+                ),
 
-            uiSettings = MapUiSettings(
-                myLocationButtonEnabled = true,
-                zoomControlsEnabled = false,
-                compassEnabled = true
-            )
+            uiSettings =
+                MapUiSettings(
+
+                    // We use our own fixed center marker.
+                    myLocationButtonEnabled = false,
+
+                    zoomControlsEnabled = false,
+
+                    compassEnabled = false,
+
+                    mapToolbarEnabled = false
+                )
+        )
+
+
+        // =====================================================
+        // HEADER
+        // =====================================================
+
+        AppHeader(
+            title = "Map Booking"
         )
 
 
@@ -244,24 +270,47 @@ fun MapScreen(
 
         uiState.selectedLocationDetails?.let { location ->
 
-            Text(
-                text = "AQI: ${location.aqi}",
-
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
+                    .statusBarsPadding()
                     .padding(
-                        top = 16.dp,
-                        end = 16.dp
+                        top = 8.dp,
+                        end = 12.dp
                     )
                     .background(
                         color = Color.White,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(6.dp)
                     )
                     .padding(
                         horizontal = 12.dp,
                         vertical = 8.dp
-                    )
-            )
+                    ),
+
+                verticalAlignment =
+                    Alignment.CenterVertically
+            ) {
+
+                Text(
+                    text = "aqi",
+
+                    fontSize = 13.sp,
+
+                    color = Color.Gray
+                )
+
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+
+                Text(
+                    text = "${location.aqi}",
+
+                    fontSize = 16.sp,
+
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
 
@@ -272,186 +321,137 @@ fun MapScreen(
         Text(
             text = "📍",
 
-            modifier = Modifier
-                .align(Alignment.Center)
+            fontSize = 34.sp,
+
+            modifier =
+                Modifier.align(
+                    Alignment.Center
+                )
         )
 
 
         // =====================================================
-        // SELECTED LOCATION DEBUG INFO
+        // BOTTOM CONTROLS
         // =====================================================
 
-        /*
-         * Temporary debug information.
-         *
-         * Keep this while developing.
-         * We can remove it during Figma UI implementation.
-         */
-
-        uiState.selectedLocation?.let { location ->
-
-            Text(
-                text = buildString {
-
-                    append(
-                        "Lat: %.6f".format(
-                            location.latitude
-                        )
-                    )
-
-                    append("\n")
-
-                    append(
-                        "Lng: %.6f".format(
-                            location.longitude
-                        )
-                    )
-                },
-
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 16.dp)
-                    .background(
-                        color = Color.White,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(
-                        horizontal = 12.dp,
-                        vertical = 8.dp
-                    )
-            )
-        }
-
-
-        // =====================================================
-        // BOTTOM PANEL
-        // =====================================================
-
-        Column(
+        Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(16.dp),
+                .navigationBarsPadding()
+                .padding(
+                    start = 12.dp,
+                    end = 12.dp,
+                    bottom = 12.dp
+                ),
 
-            verticalArrangement =
-                Arrangement.Bottom
+            verticalAlignment =
+                Alignment.Bottom
         ) {
 
 
             // =================================================
-            // A LABEL
+            // A + B BUTTONS
             // =================================================
 
-            uiState.aLocation?.let { location ->
+            Column(
+                modifier =
+                    Modifier.weight(1f),
 
-                Text(
-                    text = location.displayName,
+                verticalArrangement =
+                    Arrangement.Bottom
+            ) {
 
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .clickable {
-                            viewModel.onLocationAClicked()
-                        }
-                        .padding(16.dp)
+
+                // -------------------------------------------------
+                // LOCATION A
+                // -------------------------------------------------
+
+                LocationButton(
+                    text =
+                        uiState.aLocation?.displayName
+                            ?: "A",
+
+                    enabled =
+                        uiState.aLocation != null,
+
+                    onClick = {
+
+                        viewModel.onLocationAClicked()
+                    }
                 )
 
-            } ?: run {
 
-                Text(
-                    text = "A Location",
-
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(16.dp)
-                )
-            }
-
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-
-            // =================================================
-            // B LABEL
-            // =================================================
-
-            uiState.bLocation?.let { location ->
-
-                Text(
-                    text = location.displayName,
-
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .clickable {
-                            viewModel.onLocationBClicked()
-                        }
-                        .padding(16.dp)
+                Spacer(
+                    modifier = Modifier.height(8.dp)
                 )
 
-            } ?: run {
 
-                Text(
-                    text = "B Location",
+                // -------------------------------------------------
+                // LOCATION B
+                // -------------------------------------------------
 
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(16.dp)
+                LocationButton(
+                    text =
+                        uiState.bLocation?.displayName
+                            ?: "B",
+
+                    enabled =
+                        uiState.bLocation != null,
+
+                    onClick = {
+
+                        viewModel.onLocationBClicked()
+                    }
                 )
             }
 
 
             Spacer(
-                modifier = Modifier.height(12.dp)
+                modifier = Modifier.width(10.dp)
             )
 
 
             // =================================================
-            // SET A / SET B / BOOK
+            // V BUTTON
             // =================================================
 
             Button(
                 onClick = {
 
-                    val action = when {
+                    val action =
+                        when {
 
-                        uiState.canSetA ->
-                            MapAction.SetA
+                            uiState.canSetA ->
+                                MapAction.SetA
 
-                        uiState.canSetB ->
-                            MapAction.SetB
+                            uiState.canSetB ->
+                                MapAction.SetB
 
-                        else ->
-                            MapAction.Book
-                    }
+                            else ->
+                                MapAction.Book
+                        }
 
                     viewModel.onAction(action)
                 },
 
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .width(58.dp)
+                    .height(82.dp),
+
+                shape =
+                    RoundedCornerShape(6.dp),
 
                 enabled =
                     !uiState.isLoadingLocation
             ) {
 
                 Text(
-                    text = uiState.buttonText
+                    text = "V",
+
+                    fontSize = 20.sp,
+
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -481,19 +481,74 @@ fun MapScreen(
             Text(
                 text = error,
 
+                color = Color.Red,
+
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
                     .padding(
-                        bottom = 180.dp,
+                        bottom = 120.dp,
                         start = 16.dp,
                         end = 16.dp
                     )
                     .background(
                         color = Color.White,
-                        shape = RoundedCornerShape(8.dp)
+                        shape =
+                            RoundedCornerShape(8.dp)
                     )
                     .padding(12.dp)
             )
         }
+    }
+}
+
+
+// =============================================================
+// LOCATION BUTTON
+// =============================================================
+
+@Composable
+private fun LocationButton(
+    text: String,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .background(
+                color =
+                    if (enabled) {
+                        Color.White
+                    } else {
+                        Color(0xFFF1F3F4)
+                    },
+
+                shape =
+                    RoundedCornerShape(6.dp)
+            )
+            .clickable(
+                enabled = enabled,
+                onClick = onClick
+            )
+            .padding(
+                horizontal = 12.dp
+            ),
+
+        contentAlignment =
+            Alignment.CenterStart
+    ) {
+
+        Text(
+            text = text,
+
+            fontSize = 14.sp,
+
+            fontWeight = FontWeight.Bold,
+
+            maxLines = 1
+        )
     }
 }

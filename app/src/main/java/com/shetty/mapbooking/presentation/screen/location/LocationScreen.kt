@@ -1,28 +1,29 @@
 package com.shetty.mapbooking.presentation.screen.location
 
-import android.net.Uri
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shetty.mapbooking.data.model.LocationDetails
+import com.shetty.mapbooking.presentation.components.AppHeader
 
 @Composable
 fun LocationScreen(
@@ -36,16 +37,15 @@ fun LocationScreen(
         nickname: String
     ) -> Unit,
     onBack: () -> Unit,
-    viewModel: LocationViewModel =
-        hiltViewModel()
+    viewModel: LocationViewModel = hiltViewModel()
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
 
 
-    // ---------------------------------------------------------
+    // =========================================================
     // INITIALIZE LOCATION
-    // ---------------------------------------------------------
+    // =========================================================
 
     LaunchedEffect(
         latitude,
@@ -65,81 +65,91 @@ fun LocationScreen(
     }
 
 
-    // ---------------------------------------------------------
-    // UI
-    // ---------------------------------------------------------
+    // =========================================================
+    // SCREEN
+    // =========================================================
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-
-        verticalArrangement =
-            Arrangement.spacedBy(16.dp)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(
+                start = 16.dp,
+                end = 16.dp,
+                top = 12.dp,
+                bottom = 12.dp
+            )
     ) {
 
-        // -----------------------------------------------------
-        // TITLE
-        // -----------------------------------------------------
+        AppHeader(
+            title = "Location Details"
+        )
+        // =====================================================
+        // LOCATION HEADER
+        // =====================================================
 
         Text(
-            text = "Location $type"
+            text = type.uppercase(),
+
+            fontSize = 16.sp,
+
+            fontWeight = FontWeight.Bold
         )
 
 
-        // -----------------------------------------------------
-        // ADDRESS
-        // -----------------------------------------------------
-
-        Text(
-            text = uiState.location?.name
-                ?: name
+        Spacer(
+            modifier = Modifier.height(4.dp)
         )
 
 
-        // -----------------------------------------------------
-        // LATITUDE
-        // -----------------------------------------------------
-
         Text(
-            text = "Latitude: %.6f".format(
-                uiState.location?.latitude
-                    ?: latitude
-            )
+            text =
+                uiState.location?.name
+                    ?: name,
+
+            fontSize = 16.sp,
+
+            fontWeight = FontWeight.Bold
         )
 
 
-        // -----------------------------------------------------
-        // LONGITUDE
-        // -----------------------------------------------------
-
-        Text(
-            text = "Longitude: %.6f".format(
-                uiState.location?.longitude
-                    ?: longitude
-            )
-        )
-
-
-        // -----------------------------------------------------
+        // =====================================================
         // AQI
-        // -----------------------------------------------------
-
-        Text(
-            text = "AQI: ${
-                uiState.location?.aqi ?: aqi
-            }"
-        )
-
+        // =====================================================
 
         Spacer(
             modifier = Modifier.height(8.dp)
         )
 
+        Text(
+            text = "aqi",
 
-        // -----------------------------------------------------
+            fontSize = 12.sp
+        )
+
+        Text(
+            text =
+                "${uiState.location?.aqi ?: aqi}",
+
+            fontSize = 14.sp,
+
+            fontWeight = FontWeight.Bold
+        )
+
+
+        // =====================================================
+        // PUSH NICKNAME + BUTTON TO BOTTOM
+        // =====================================================
+
+        Spacer(
+            modifier = Modifier.weight(1f)
+        )
+
+
+        // =====================================================
         // NICKNAME
-        // -----------------------------------------------------
+        // =====================================================
 
         OutlinedTextField(
             value = uiState.nickname,
@@ -150,19 +160,18 @@ fun LocationScreen(
 
             modifier = Modifier.fillMaxWidth(),
 
-            label = {
-                Text("Nickname")
-            },
-
             placeholder = {
-                Text("Optional")
+                Text(
+                    text = "nickname"
+                )
             },
 
             singleLine = true,
 
             supportingText = {
                 Text(
-                    "${uiState.nickname.length}/20"
+                    text =
+                        "${uiState.nickname.length}/20"
                 )
             },
 
@@ -174,13 +183,13 @@ fun LocationScreen(
 
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier = Modifier.height(12.dp)
         )
 
 
-        // -----------------------------------------------------
-        // SAVE
-        // -----------------------------------------------------
+        // =====================================================
+        // V / SAVE BUTTON
+        // =====================================================
 
         Button(
             onClick = {
@@ -191,24 +200,18 @@ fun LocationScreen(
                 )
             },
 
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
         ) {
 
-            Text("Save")
-        }
+            Text(
+                text = "V",
 
+                fontSize = 18.sp,
 
-        // -----------------------------------------------------
-        // CANCEL / BACK
-        // -----------------------------------------------------
-
-        TextButton(
-            onClick = onBack,
-
-            modifier = Modifier.fillMaxWidth()
-        ) {
-
-            Text("Cancel")
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

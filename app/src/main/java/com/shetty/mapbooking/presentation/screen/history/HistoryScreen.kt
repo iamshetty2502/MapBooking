@@ -2,26 +2,34 @@ package com.shetty.mapbooking.presentation.screen.history
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shetty.mapbooking.data.model.BookDetails
+import com.shetty.mapbooking.presentation.components.AppHeader
+
 
 @Composable
 fun HistoryScreen(
@@ -33,12 +41,11 @@ fun HistoryScreen(
     // STATE
     // =========================================================
 
-    val uiState by
-    viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
 
     // =========================================================
-    // LOAD HISTORY
+    // LOAD CURRENT MONTH HISTORY
     // =========================================================
 
     LaunchedEffect(Unit) {
@@ -54,21 +61,12 @@ fun HistoryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .statusBarsPadding()
+            .navigationBarsPadding()
     ) {
 
-        // =====================================================
-        // TITLE
-        // =====================================================
-
-        Text(
-            text = "Usage History",
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
+        AppHeader(
+            title = "History"
         )
 
 
@@ -76,24 +74,94 @@ fun HistoryScreen(
         // SUMMARY
         // =====================================================
 
-        Text(
-            text = "Total bookings: ${uiState.totalItems}",
-            style = MaterialTheme.typography.titleMedium
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 12.dp,
+                    bottom = 12.dp
+                ),
 
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
+            horizontalArrangement =
+                Arrangement.SpaceBetween
+        ) {
 
-        Text(
-            text = "Total price: ₹${uiState.totalPrice}",
-            style = MaterialTheme.typography.titleMedium
-        )
+            // -------------------------------------------------
+            // TOTAL COUNT
+            // -------------------------------------------------
+
+            Column(
+                horizontalAlignment =
+                    Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "Total Count",
+
+                    fontSize = 12.sp,
+
+                    fontWeight =
+                        FontWeight.Bold
+                )
+
+                Spacer(
+                    modifier = Modifier.height(6.dp)
+                )
+
+                Text(
+                    text =
+                        uiState.totalItems.toString(),
+
+                    fontSize = 16.sp,
+
+                    fontWeight =
+                        FontWeight.Bold
+                )
+            }
 
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+            // -------------------------------------------------
+            // TOTAL PRICE
+            // -------------------------------------------------
+
+            Column(
+                horizontalAlignment =
+                    Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "Total Price",
+
+                    fontSize = 12.sp,
+
+                    fontWeight =
+                        FontWeight.Bold
+                )
+
+                Spacer(
+                    modifier = Modifier.height(6.dp)
+                )
+
+                Text(
+                    text =
+                        formatPrice(uiState.totalPrice),
+
+                    fontSize = 16.sp,
+
+                    fontWeight =
+                        FontWeight.Bold
+                )
+            }
+        }
+
+
+        // =====================================================
+        // DIVIDER
+        // =====================================================
+
+        HorizontalDivider()
 
 
         // =====================================================
@@ -102,10 +170,12 @@ fun HistoryScreen(
 
         if (uiState.isLoading) {
 
-            CircularProgressIndicator()
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .align(
+                        Alignment.CenterHorizontally
+                    )
+                    .padding(16.dp)
             )
         }
 
@@ -118,41 +188,24 @@ fun HistoryScreen(
 
             Text(
                 text = error,
-                color = MaterialTheme.colorScheme.error
-            )
 
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
+                color =
+                    MaterialTheme.colorScheme.error,
 
-            Button(
-                onClick = {
-
-                    viewModel.clearError()
-                    viewModel.loadHistory()
-                }
-            ) {
-
-                Text(
-                    text = "Retry"
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
+                modifier = Modifier.padding(16.dp)
             )
         }
 
 
         // =====================================================
-        // HISTORY LIST
+        // BOOKING LIST
         // =====================================================
 
         LazyColumn(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.fillMaxWidth(),
 
             verticalArrangement =
-                Arrangement.spacedBy(12.dp)
+                Arrangement.Top
         ) {
 
             items(
@@ -163,26 +216,6 @@ fun HistoryScreen(
                     book = book
                 )
             }
-        }
-
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-
-        // =====================================================
-        // BACK
-        // =====================================================
-
-        Button(
-            onClick = onBack,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-
-            Text(
-                text = "Back"
-            )
         }
     }
 }
@@ -197,108 +230,109 @@ private fun HistoryItem(
     book: BookDetails
 ) {
 
-    Card(
+    Column(
         modifier = Modifier.fillMaxWidth()
     ) {
 
-        Column(
-            modifier = Modifier.padding(16.dp)
+        // =====================================================
+        // LOCATION A
+        // =====================================================
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 10.dp
+                )
         ) {
 
-            // =================================================
-            // LOCATION A
-            // =================================================
-
             Text(
-                text = "Location A",
-                style = MaterialTheme.typography.titleMedium
-            )
+                text = "A",
 
-            Spacer(
-                modifier = Modifier.height(6.dp)
-            )
+                modifier = Modifier.width(
+                    32.dp
+                ),
 
-            Text(
-                text = book.a.name
-            )
+                fontSize = 13.sp,
 
-            Spacer(
-                modifier = Modifier.height(4.dp)
+                fontWeight =
+                    FontWeight.Bold
             )
 
             Text(
-                text =
-                    "Latitude: %.6f"
-                        .format(book.a.latitude)
-            )
+                text = book.a.name,
 
-            Text(
-                text =
-                    "Longitude: %.6f"
-                        .format(book.a.longitude)
-            )
+                fontSize = 13.sp,
 
-            Text(
-                text = "AQI: ${book.a.aqi}"
-            )
-
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-
-
-            // =================================================
-            // LOCATION B
-            // =================================================
-
-            Text(
-                text = "Location B",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(
-                modifier = Modifier.height(6.dp)
-            )
-
-            Text(
-                text = book.b.name
-            )
-
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
-
-            Text(
-                text =
-                    "Latitude: %.6f"
-                        .format(book.b.latitude)
-            )
-
-            Text(
-                text =
-                    "Longitude: %.6f"
-                        .format(book.b.longitude)
-            )
-
-            Text(
-                text = "AQI: ${book.b.aqi}"
-            )
-
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-
-
-            // =================================================
-            // PRICE
-            // =================================================
-
-            Text(
-                text = "Price: ₹${book.price}",
-                style = MaterialTheme.typography.titleMedium
+                fontWeight =
+                    FontWeight.Bold
             )
         }
+
+
+        // =====================================================
+        // LOCATION B
+        // =====================================================
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 10.dp
+                )
+        ) {
+
+            Text(
+                text = "B",
+
+                modifier = Modifier.width(
+                    32.dp
+                ),
+
+                fontSize = 13.sp,
+
+                fontWeight =
+                    FontWeight.Bold
+            )
+
+            Text(
+                text = book.b.name,
+
+                fontSize = 13.sp,
+
+                fontWeight =
+                    FontWeight.Bold
+            )
+        }
+
+
+        // =====================================================
+        // DIVIDER
+        // =====================================================
+
+        HorizontalDivider()
+    }
+}
+
+
+// =============================================================
+// PRICE FORMAT
+// =============================================================
+
+private fun formatPrice(
+    price: Double
+): String {
+
+    return if (price % 1.0 == 0.0) {
+
+        price
+            .toLong()
+            .toString()
+
+    } else {
+
+        price.toString()
     }
 }

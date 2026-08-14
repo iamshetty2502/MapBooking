@@ -2,22 +2,33 @@ package com.shetty.mapbooking.presentation.screen.booking
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.shetty.mapbooking.data.model.BookDetails
+import com.shetty.mapbooking.presentation.components.AppHeader
+
 
 @Composable
 fun BookingScreen(
@@ -37,24 +48,7 @@ fun BookingScreen(
     // CREATE BOOKING
     // =========================================================
 
-    /*
-     * Screen 3 is opened only after A and B have been selected.
-     *
-     * When Screen 3 enters composition, we call:
-     *
-     * BookingViewModel
-     *       ↓
-     * CreateBookUseCase
-     *       ↓
-     * BookingRepository
-     *       ↓
-     * MockBookingDataSource
-     *       ↓
-     * BookDetails
-     */
-
     LaunchedEffect(Unit) {
-
         viewModel.createBooking()
     }
 
@@ -66,28 +60,19 @@ fun BookingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-
-        verticalArrangement =
-            Arrangement.Top
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(
+                start = 16.dp,
+                end = 16.dp,
+                top = 12.dp,
+                bottom = 12.dp
+            )
     ) {
 
-        // =====================================================
-        // TITLE
-        // =====================================================
-
-        Text(
-            text = "Booking",
-
-            style =
-                MaterialTheme.typography.headlineMedium
+        AppHeader(
+            title = "Booking"
         )
-
-
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
-
 
         // =====================================================
         // LOADING
@@ -95,7 +80,11 @@ fun BookingScreen(
 
         if (uiState.isLoading) {
 
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier.align(
+                    Alignment.CenterHorizontally
+                )
+            )
 
             Spacer(
                 modifier = Modifier.height(16.dp)
@@ -115,29 +104,22 @@ fun BookingScreen(
 
             Text(
                 text = error,
-
-                color =
-                    MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error
             )
 
             Spacer(
-                modifier = Modifier.height(16.dp)
+                modifier = Modifier.height(12.dp)
             )
 
             Button(
                 onClick = {
-
                     viewModel.clearError()
-
                     viewModel.createBooking()
                 },
 
                 modifier = Modifier.fillMaxWidth()
             ) {
-
-                Text(
-                    text = "Retry"
-                )
+                Text("Retry")
             }
         }
 
@@ -148,87 +130,16 @@ fun BookingScreen(
 
         uiState.book?.let { book ->
 
-            // =================================================
-            // LOCATION A
-            // =================================================
-
-            Text(
-                text = "Location A",
-
-                style =
-                    MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            LocationDetailsSection(
-                name = book.a.displayName,
-                latitude = book.a.latitude,
-                longitude = book.a.longitude,
-                aqi = book.a.aqi
-            )
-
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-
-            // =================================================
-            // LOCATION B
-            // =================================================
-
-            Text(
-                text = "Location B",
-
-                style =
-                    MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            LocationDetailsSection(
-                name = book.b.displayName,
-                latitude = book.b.latitude,
-                longitude = book.b.longitude,
-                aqi = book.b.aqi
-            )
-
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-
-            // =================================================
-            // PRICE
-            // =================================================
-
-            Text(
-                text = "Price",
-
-                style =
-                    MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            Text(
-                text = "₹${book.price}",
-
-                style =
-                    MaterialTheme.typography.headlineSmall
+            BookingDetailsContent(
+                book = book
             )
         }
 
 
-        // Push navigation buttons to bottom.
+        // =====================================================
+        // PUSH BUTTONS TO BOTTOM
+        // =====================================================
+
         Spacer(
             modifier = Modifier.weight(1f)
         )
@@ -241,7 +152,9 @@ fun BookingScreen(
         Button(
             onClick = onHistory,
 
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
 
             enabled =
                 !uiState.isLoading &&
@@ -249,28 +162,34 @@ fun BookingScreen(
         ) {
 
             Text(
-                text = "View History"
+                text = "View History",
+
+                fontSize = 14.sp
             )
         }
 
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(8.dp)
         )
 
 
         // =====================================================
-        // BACK TO MAP
+        // BACK
         // =====================================================
 
         Button(
             onClick = onBackToMap,
 
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
         ) {
 
             Text(
-                text = "Back to Map"
+                text = "BACK",
+
+                fontSize = 14.sp
             )
         }
     }
@@ -278,76 +197,225 @@ fun BookingScreen(
 
 
 // =============================================================
-// LOCATION DETAILS
+// BOOKING DETAILS
 // =============================================================
 
 @Composable
-private fun LocationDetailsSection(
-    name: String,
-    latitude: Double,
-    longitude: Double,
-    aqi: Int
+private fun BookingDetailsContent(
+    book: BookDetails
 ) {
 
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
 
-        // -----------------------------------------------------
-        // NAME
-        // -----------------------------------------------------
+        // =====================================================
+        // LOCATION A
+        // =====================================================
 
-        Text(
-            text = name,
-
-            style =
-                MaterialTheme.typography.bodyLarge
+        BookingLocationRow(
+            label = "A",
+            name = book.a.name,
+            aqi = book.a.aqi,
+            nickname = book.a.nickname ?: ""
         )
 
 
         Spacer(
-            modifier = Modifier.height(6.dp)
+            modifier = Modifier.height(8.dp)
         )
 
 
-        // -----------------------------------------------------
-        // LATITUDE
-        // -----------------------------------------------------
+        HorizontalDivider()
 
-        Text(
-            text =
-                "Latitude: %.6f"
-                    .format(latitude)
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+
+        // =====================================================
+        // LOCATION B
+        // =====================================================
+
+        BookingLocationRow(
+            label = "B",
+            name = book.b.name,
+            aqi = book.b.aqi,
+            nickname = book.b.nickname ?: ""
         )
 
 
         Spacer(
-            modifier = Modifier.height(4.dp)
+            modifier = Modifier.height(8.dp)
         )
 
 
-        // -----------------------------------------------------
-        // LONGITUDE
-        // -----------------------------------------------------
+        HorizontalDivider()
 
-        Text(
-            text =
-                "Longitude: %.6f"
-                    .format(longitude)
-        )
 
+        // =====================================================
+        // PRICE
+        // =====================================================
 
         Spacer(
-            modifier = Modifier.height(4.dp)
+            modifier = Modifier.height(16.dp)
         )
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
 
-        // -----------------------------------------------------
-        // AQI
-        // -----------------------------------------------------
+            horizontalArrangement =
+                Arrangement.SpaceBetween,
+
+            verticalAlignment =
+                Alignment.CenterVertically
+        ) {
+
+            Text(
+                text = "price",
+
+                fontSize = 14.sp,
+
+                fontWeight =
+                    FontWeight.Bold
+            )
+
+            Text(
+                text = book.price.toString(),
+
+                fontSize = 16.sp,
+
+                fontWeight =
+                    FontWeight.Bold
+            )
+        }
+    }
+}
+
+
+// =============================================================
+// LOCATION ROW
+// =============================================================
+
+@Composable
+private fun BookingLocationRow(
+    label: String,
+    name: String,
+    aqi: Int,
+    nickname: String
+) {
+
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        // =====================================================
+        // A / B
+        // =====================================================
 
         Text(
-            text = "AQI: $aqi"
+            text = label,
+
+            modifier = Modifier.width(
+                28.dp
+            ),
+
+            fontSize = 16.sp,
+
+            fontWeight =
+                FontWeight.Bold
         )
+
+
+        // =====================================================
+        // LOCATION INFORMATION
+        // =====================================================
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            // -------------------------------------------------
+            // LOCATION NAME
+            // -------------------------------------------------
+
+            Text(
+                text = name,
+
+                fontSize = 15.sp,
+
+                fontWeight =
+                    FontWeight.Bold
+            )
+
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+
+            // -------------------------------------------------
+            // AQI
+            // -------------------------------------------------
+
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Text(
+                    text = "aqi",
+
+                    fontSize = 12.sp,
+
+                    modifier = Modifier.weight(1f)
+                )
+
+                Text(
+                    text = aqi.toString(),
+
+                    fontSize = 12.sp,
+
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    modifier = Modifier.weight(0.55f)
+                )
+            }
+
+
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
+
+
+            // -------------------------------------------------
+            // NICKNAME
+            // -------------------------------------------------
+
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                Text(
+                    text = "nickname",
+
+                    fontSize = 12.sp,
+
+                    modifier = Modifier.weight(1f)
+                )
+
+                Text(
+                    text = nickname,
+
+                    fontSize = 12.sp,
+
+                    fontWeight =
+                        FontWeight.Bold,
+
+                    modifier = Modifier.weight(0.55f)
+                )
+            }
+        }
     }
 }
