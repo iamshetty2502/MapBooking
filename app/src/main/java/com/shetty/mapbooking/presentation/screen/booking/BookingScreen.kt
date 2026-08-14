@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -60,137 +59,157 @@ fun BookingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .navigationBarsPadding()
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 12.dp,
-                bottom = 12.dp
-            )
     ) {
+
+        // =====================================================
+        // HEADER
+        // =====================================================
 
         AppHeader(
             title = "Booking"
         )
 
+
         // =====================================================
-        // LOADING
+        // CONTENT
         // =====================================================
 
-        if (uiState.isLoading) {
-
-            CircularProgressIndicator(
-                modifier = Modifier.align(
-                    Alignment.CenterHorizontally
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 12.dp
                 )
-            )
+        ) {
+
+            // =================================================
+            // LOADING
+            // =================================================
+
+            if (uiState.isLoading) {
+
+                CircularProgressIndicator(
+                    modifier = Modifier.align(
+                        Alignment.CenterHorizontally
+                    )
+                )
+
+                Spacer(
+                    modifier = Modifier.height(16.dp)
+                )
+
+                Text(
+                    text = "Creating booking..."
+                )
+            }
+
+
+            // =================================================
+            // ERROR
+            // =================================================
+
+            uiState.error?.let { error ->
+
+                Text(
+                    text = error,
+
+                    color =
+                        MaterialTheme.colorScheme.error
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                Button(
+                    onClick = {
+
+                        viewModel.clearError()
+                        viewModel.createBooking()
+                    },
+
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    Text(
+                        text = "Retry"
+                    )
+                }
+            }
+
+
+            // =================================================
+            // BOOKING RESPONSE
+            // =================================================
+
+            uiState.book?.let { book ->
+
+                BookingDetailsContent(
+                    book = book
+                )
+            }
+
+
+            // =================================================
+            // PUSH BUTTONS TO BOTTOM
+            // =================================================
 
             Spacer(
-                modifier = Modifier.height(16.dp)
+                modifier = Modifier.weight(1f)
             )
 
-            Text(
-                text = "Creating booking..."
-            )
-        }
 
-
-        // =====================================================
-        // ERROR
-        // =====================================================
-
-        uiState.error?.let { error ->
-
-            Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error
-            )
-
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
+            // =================================================
+            // VIEW HISTORY
+            // =================================================
 
             Button(
-                onClick = {
-                    viewModel.clearError()
-                    viewModel.createBooking()
-                },
+                onClick = onHistory,
 
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+
+                enabled =
+                    !uiState.isLoading &&
+                            uiState.book != null
             ) {
-                Text("Retry")
+
+                Text(
+                    text = "View History",
+
+                    fontSize = 14.sp
+                )
             }
-        }
 
 
-        // =====================================================
-        // BOOKING RESPONSE
-        // =====================================================
-
-        uiState.book?.let { book ->
-
-            BookingDetailsContent(
-                book = book
+            Spacer(
+                modifier = Modifier.height(8.dp)
             )
-        }
 
 
-        // =====================================================
-        // PUSH BUTTONS TO BOTTOM
-        // =====================================================
+            // =================================================
+            // BACK
+            // =================================================
 
-        Spacer(
-            modifier = Modifier.weight(1f)
-        )
+            Button(
+                onClick = onBackToMap,
 
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+            ) {
 
-        // =====================================================
-        // VIEW HISTORY
-        // =====================================================
+                Text(
+                    text = "BACK",
 
-        Button(
-            onClick = onHistory,
-
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-
-            enabled =
-                !uiState.isLoading &&
-                        uiState.book != null
-        ) {
-
-            Text(
-                text = "View History",
-
-                fontSize = 14.sp
-            )
-        }
-
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-
-        // =====================================================
-        // BACK
-        // =====================================================
-
-        Button(
-            onClick = onBackToMap,
-
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-        ) {
-
-            Text(
-                text = "BACK",
-
-                fontSize = 14.sp
-            )
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
@@ -215,9 +234,13 @@ private fun BookingDetailsContent(
 
         BookingLocationRow(
             label = "A",
+
             name = book.a.name,
+
             aqi = book.a.aqi,
-            nickname = book.a.nickname ?: ""
+
+            nickname =
+                book.a.nickname ?: ""
         )
 
 
@@ -240,9 +263,13 @@ private fun BookingDetailsContent(
 
         BookingLocationRow(
             label = "B",
+
             name = book.b.name,
+
             aqi = book.b.aqi,
-            nickname = book.b.nickname ?: ""
+
+            nickname =
+                book.b.nickname ?: ""
         )
 
 
@@ -282,7 +309,7 @@ private fun BookingDetailsContent(
             )
 
             Text(
-                text = book.price.toString(),
+                text = formatPrice(book.price),
 
                 fontSize = 16.sp,
 
@@ -417,5 +444,26 @@ private fun BookingLocationRow(
                 )
             }
         }
+    }
+}
+
+
+// =============================================================
+// PRICE FORMAT
+// =============================================================
+
+private fun formatPrice(
+    price: Double
+): String {
+
+    return if (price % 1.0 == 0.0) {
+
+        price
+            .toLong()
+            .toString()
+
+    } else {
+
+        price.toString()
     }
 }

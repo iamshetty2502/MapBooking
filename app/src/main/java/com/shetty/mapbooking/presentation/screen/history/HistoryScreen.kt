@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -61,9 +60,12 @@ fun HistoryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+
+        // =====================================================
+        // HEADER
+        // =====================================================
 
         AppHeader(
             title = "History"
@@ -146,7 +148,9 @@ fun HistoryScreen(
 
                 Text(
                     text =
-                        formatPrice(uiState.totalPrice),
+                        formatPrice(
+                            uiState.totalPrice
+                        ),
 
                     fontSize = 16.sp,
 
@@ -202,7 +206,9 @@ fun HistoryScreen(
         // =====================================================
 
         LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
 
             verticalArrangement =
                 Arrangement.Top

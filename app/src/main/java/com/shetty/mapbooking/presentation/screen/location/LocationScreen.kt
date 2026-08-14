@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -72,146 +71,161 @@ fun LocationScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .navigationBarsPadding()
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 12.dp,
-                bottom = 12.dp
-            )
     ) {
+
+        // =====================================================
+        // HEADER
+        // =====================================================
 
         AppHeader(
             title = "Location Details"
         )
-        // =====================================================
-        // LOCATION HEADER
-        // =====================================================
-
-        Text(
-            text = type.uppercase(),
-
-            fontSize = 16.sp,
-
-            fontWeight = FontWeight.Bold
-        )
-
-
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
-
-
-        Text(
-            text =
-                uiState.location?.name
-                    ?: name,
-
-            fontSize = 16.sp,
-
-            fontWeight = FontWeight.Bold
-        )
 
 
         // =====================================================
-        // AQI
+        // CONTENT
         // =====================================================
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Text(
-            text = "aqi",
-
-            fontSize = 12.sp
-        )
-
-        Text(
-            text =
-                "${uiState.location?.aqi ?: aqi}",
-
-            fontSize = 14.sp,
-
-            fontWeight = FontWeight.Bold
-        )
-
-
-        // =====================================================
-        // PUSH NICKNAME + BUTTON TO BOTTOM
-        // =====================================================
-
-        Spacer(
-            modifier = Modifier.weight(1f)
-        )
-
-
-        // =====================================================
-        // NICKNAME
-        // =====================================================
-
-        OutlinedTextField(
-            value = uiState.nickname,
-
-            onValueChange = {
-                viewModel.onNicknameChanged(it)
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            placeholder = {
-                Text(
-                    text = "nickname"
-                )
-            },
-
-            singleLine = true,
-
-            supportingText = {
-                Text(
-                    text =
-                        "${uiState.nickname.length}/20"
-                )
-            },
-
-            keyboardOptions = KeyboardOptions(
-                keyboardType =
-                    KeyboardType.Text
-            )
-        )
-
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-
-        // =====================================================
-        // V / SAVE BUTTON
-        // =====================================================
-
-        Button(
-            onClick = {
-
-                onSave(
-                    type,
-                    uiState.nickname
-                )
-            },
-
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .weight(1f)
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 12.dp
+                )
         ) {
 
-            Text(
-                text = "V",
+            // =================================================
+            // LOCATION TYPE
+            // =================================================
 
-                fontSize = 18.sp,
+            Text(
+                text = type.uppercase(),
+
+                fontSize = 16.sp,
 
                 fontWeight = FontWeight.Bold
             )
+
+
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
+
+            // =================================================
+            // LOCATION NAME
+            // =================================================
+
+            Text(
+                text =
+                    uiState.location?.name
+                        ?: name,
+
+                fontSize = 16.sp,
+
+                fontWeight = FontWeight.Bold
+            )
+
+
+            // =================================================
+            // AQI
+            // =================================================
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Text(
+                text = "aqi",
+
+                fontSize = 12.sp
+            )
+
+            Text(
+                text =
+                    "${uiState.location?.aqi ?: aqi}",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+
+            // =================================================
+            // PUSH NICKNAME + BUTTON TO BOTTOM
+            // =================================================
+
+            Spacer(
+                modifier = Modifier.weight(1f)
+            )
+
+
+            // =================================================
+            // NICKNAME
+            // =================================================
+
+            OutlinedTextField(
+                value = uiState.nickname,
+
+                onValueChange = {
+                    viewModel.onNicknameChanged(it)
+                },
+
+                modifier = Modifier.fillMaxWidth(),
+
+                placeholder = {
+                    Text(
+                        text = "nickname"
+                    )
+                },
+
+                singleLine = true,
+
+                supportingText = {
+                    Text(
+                        text =
+                            "${uiState.nickname.length}/20"
+                    )
+                },
+
+                keyboardOptions = KeyboardOptions(
+                    keyboardType =
+                        KeyboardType.Text
+                )
+            )
+
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+
+            // =================================================
+            // V / SAVE BUTTON
+            // =================================================
+
+            Button(
+                onClick = {
+
+                    onSave(
+                        type,
+                        uiState.nickname
+                    )
+                },
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+            ) {
+
+                Text(
+                    text = "V",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
